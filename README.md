@@ -3,6 +3,10 @@ Parse today's ham band conditions
 
 
 ## Requirements:
-`npm install axios`
+```sh
+npm install axios
+```
 
-`npm install cheerio`
+```sh
+npm install cheerio
+```
