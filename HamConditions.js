@@ -33,8 +33,36 @@ async function getWebPage() {
       }
     });
 
-    // Return the filtered bands
-    return bands;
+    // Select and retrieve items in the cond_row and cond_value classes from the primaryconds div
+    const conditions = [];
+    $("div#primaryconds .cond_row").each((index, element) => {
+      // Find the corresponding .cond_value within the current cond_row
+      const conditionRow = $(element);
+      const conditionValue = conditionRow.find(".cond_value").text().trim();
+
+      // Extract the text content excluding the .cond_value element
+      const conditionRowText = conditionRow
+        .clone()
+        .children(".cond_value")
+        .remove()
+        .end()
+        .text()
+        .trim();
+
+      // Check if conditionValue is not an empty string
+      if (conditionValue !== "") {
+        // Create a condition object with custom labels
+        const condition = {
+          ConditionRow: conditionRowText, // Use the modified text content without .cond_value
+          ConditionValue: conditionValue,
+        };
+        // Push the condition object to the conditions array
+        conditions.push(condition);
+      }
+    });
+
+    // Return the filtered bands and conditions
+    return { bands, conditions };
   } catch (error) {
     // Log and throw an error if there is an issue fetching the web page
     console.error("Error fetching web page:", error.message);
@@ -44,12 +72,21 @@ async function getWebPage() {
 
 // Call the function and log the result
 getWebPage()
-  .then((bands) => {
-    // Log the filtered bands to the console
+  .then(({ bands, conditions }) => {
+    // Log the filtered bands and conditions to the console
+    //console.log("Filtered Bands:", bands);
     // Parse apart the return array
     for (let i = 0; i < bands.length; i++) {
-      console.log(bands[i].Band + " - Day: " + bands[i].Daytime + " - Night: " + bands[i].Nighttime);
+      console.log(
+        bands[i].Band +
+          " - Day: " +
+          bands[i].Daytime +
+          " - Night: " +
+          bands[i].Nighttime
+      );
     }
+
+    console.log("Conditions:", conditions);
   })
   .catch((error) => {
     // Log an error message if there is an issue
