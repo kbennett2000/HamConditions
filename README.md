@@ -10,3 +10,7 @@ npm install axios
 ```sh
 npm install cheerio
 ```
+
+```sh
+npm install mysql2
+```
