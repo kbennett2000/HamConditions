@@ -14,10 +14,14 @@ async function getWebPage() {
 
     // Initialize band conditions
     const bandConditions = {
-      "80m-40m": "",
-      "30m-20m": "",
-      "17m-15m": "",
-      "12m-10m": "",
+      "80m-40m Day": "",
+      "80m-40m Night": "",
+      "30m-20m Day": "",
+      "30m-20m Night": "",
+      "17m-15m Day": "",
+      "17m-15m Night": "",
+      "12m-10m Day": "",
+      "12m-10m Night": "",
     };
 
     // Initialize attribute conditions
@@ -34,10 +38,13 @@ async function getWebPage() {
       const columns = $(element).find("td");
       const startFrequency = $(columns[1]).text().trim();
       const bandLabel = $(columns[0]).text().trim();
+      const dayConditions = $(columns[1]).text().trim();
+      const nightConditions = $(columns[2]).text().trim();
 
       if (startFrequency !== "") {
         // Store the condition for the corresponding band
-        bandConditions[bandLabel] = $(columns[2]).text().trim();
+        bandConditions[bandLabel + " Day"] = dayConditions;
+        bandConditions[bandLabel + " Night"] = nightConditions;
       }
     });
 
@@ -109,15 +116,19 @@ async function writeToDatabase(result) {
     // Insert data into the ConditionReports table
     const [rows, fields] = await connection.execute(
       `
-      INSERT INTO ConditionReports (date_time, 80m_40m, 30m_20m, 17m_15m, 12m_10m, sunspot_number, solar_flux, geomagnetic_storm, solar_wind, noise_floor)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO ConditionReports (date_time, 80m_40m_Day, 80m_40m_Night, 30m_20m_Day, 30m_20m_Night, 17m_15m_Day, 17m_15m_Night, 12m_10m_Day, 12m_10m_Night, sunspot_number, solar_flux, geomagnetic_storm, solar_wind, noise_floor)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
       [
         formattedDate,
-        result.bandConditions["80m-40m"],
-        result.bandConditions["30m-20m"],
-        result.bandConditions["17m-15m"],
-        result.bandConditions["12m-10m"],
+        result.bandConditions["80m-40m Day"],
+        result.bandConditions["80m-40m Night"],
+        result.bandConditions["30m-20m Day"],
+        result.bandConditions["30m-20m Night"],
+        result.bandConditions["17m-15m Day"],
+        result.bandConditions["17m-15m Night"],
+        result.bandConditions["12m-10m Day"],
+        result.bandConditions["12m-10m Night"],
         result.attributeConditions["Sunspot Number"],
         result.attributeConditions["Solar Flux"],
         result.attributeConditions["Geomagnetic Storm"],
