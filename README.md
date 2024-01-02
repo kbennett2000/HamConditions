@@ -1,5 +1,5 @@
 # HamConditions
-Parse today's ham band conditions
+Parse today's ham band conditions and store them in a database.
 
 
 ## Requirements:
