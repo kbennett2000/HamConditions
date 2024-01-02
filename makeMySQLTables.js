@@ -16,7 +16,7 @@ con.connect(function (err) {
 
   // Define the SQL query to create a table named ConditionReports
   var sql =
-    "CREATE TABLE ConditionReports (date_time VARCHAR(1024), 80m_40m VARCHAR(255), 30m_20m VARCHAR(255), 17m_15m VARCHAR(255), 12m_10m VARCHAR(255), sunspot_number VARCHAR(255), solar_flux VARCHAR(255), geomagnetic_storm VARCHAR(255), solar_wind VARCHAR(255), noise_floor VARCHAR(255))";
+    "CREATE TABLE ConditionReports (date_time VARCHAR(1024), 80m_40m_Day VARCHAR(255),80m_40m_Night VARCHAR(255), 30m_20m_Day VARCHAR(255), 30m_20m_Night VARCHAR(255), 17m_15m_Day VARCHAR(255), 17m_15m_Night VARCHAR(255), 12m_10m_Day VARCHAR(255), 12m_10m_Night VARCHAR(255), sunspot_number VARCHAR(255), solar_flux VARCHAR(255), geomagnetic_storm VARCHAR(255), solar_wind VARCHAR(255), noise_floor VARCHAR(255))";
 
   // Execute the SQL query to create the table
   con.query(sql, function (err, result) {
