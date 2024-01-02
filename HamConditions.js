@@ -1,6 +1,7 @@
 // Import the required libraries
-const axios = require("axios"); // For making HTTP requests
-const cheerio = require("cheerio"); // For parsing HTML
+const axios = require("axios"); // Library for making HTTP requests
+const cheerio = require("cheerio"); // Library for parsing HTML
+const mysql = require("mysql2/promise"); // MySQL library for asynchronous operations
 
 // Function to fetch the web page and extract relevant data
 async function getWebPage() {
@@ -11,36 +12,40 @@ async function getWebPage() {
     // Load the HTML content into Cheerio
     const $ = cheerio.load(response.data);
 
+    // Initialize band conditions
+    const bandConditions = {
+      "80m-40m": "",
+      "30m-20m": "",
+      "17m-15m": "",
+      "12m-10m": "",
+    };
+
+    // Initialize attribute conditions
+    const attributeConditions = {
+      "Sunspot Number": "",
+      "Solar Flux": "",
+      "Geomagnetic Storm": "",
+      "Solar Wind": "",
+      "Noise Floor": "",
+    };
+
     // Select and retrieve items in the bandstable table where startFrequency is not ''
-    const bands = [];
     $("table#bandstable tr").each((index, element) => {
-      // Find all <td> elements within the current table row
       const columns = $(element).find("td");
-
-      // Extract the startFrequency value from the second column
       const startFrequency = $(columns[1]).text().trim();
+      const bandLabel = $(columns[0]).text().trim();
 
-      // Check if startFrequency is not an empty string
       if (startFrequency !== "") {
-        // Create a band object with custom labels
-        const band = {
-          Band: $(columns[0]).text().trim(),
-          Daytime: startFrequency,
-          Nighttime: $(columns[2]).text().trim(),
-        };
-        // Push the band object to the bands array
-        bands.push(band);
+        // Store the condition for the corresponding band
+        bandConditions[bandLabel] = $(columns[2]).text().trim();
       }
     });
 
     // Select and retrieve items in the cond_row and cond_value classes from the primaryconds div
     const conditions = [];
     $("div#primaryconds .cond_row").each((index, element) => {
-      // Find the corresponding .cond_value within the current cond_row
       const conditionRow = $(element);
       const conditionValue = conditionRow.find(".cond_value").text().trim();
-
-      // Extract the text content excluding the .cond_value element
       const conditionRowText = conditionRow
         .clone()
         .children(".cond_value")
@@ -49,20 +54,36 @@ async function getWebPage() {
         .text()
         .trim();
 
-      // Check if conditionValue is not an empty string
       if (conditionValue !== "") {
-        // Create a condition object with custom labels
         const condition = {
-          ConditionRow: conditionRowText, // Use the modified text content without .cond_value
+          ConditionRow: conditionRowText,
           ConditionValue: conditionValue,
         };
-        // Push the condition object to the conditions array
         conditions.push(condition);
       }
     });
 
-    // Return the filtered bands and conditions
-    return { bands, conditions };
+    // Select and retrieve items in the cond_row and cond_value classes from the primaryconds div
+    $("div#primaryconds .cond_row").each((index, element) => {
+      const conditionRow = $(element);
+      const conditionValue = conditionRow.find(".cond_value").text().trim();
+      const conditionRowText = conditionRow
+        .clone()
+        .children(".cond_value")
+        .remove()
+        .end()
+        .text()
+        .trim();
+
+      // Check if the attribute exists in attributeConditions
+      if (attributeConditions.hasOwnProperty(conditionRowText)) {
+        // Store the condition value for the corresponding attribute
+        attributeConditions[conditionRowText] = conditionValue;
+      }
+    });
+
+    // Return the filtered band conditions and general conditions
+    return { bandConditions, attributeConditions };
   } catch (error) {
     // Log and throw an error if there is an issue fetching the web page
     console.error("Error fetching web page:", error.message);
@@ -70,25 +91,64 @@ async function getWebPage() {
   }
 }
 
-// Call the function and log the result
-getWebPage()
-  .then(({ bands, conditions }) => {
-    // Log the filtered bands and conditions to the console
-    //console.log("Filtered Bands:", bands);
-    // Parse apart the return array
-    for (let i = 0; i < bands.length; i++) {
-      console.log(
-        bands[i].Band +
-          " - Day: " +
-          bands[i].Daytime +
-          " - Night: " +
-          bands[i].Nighttime
-      );
-    }
+// Function to write the extracted data to the MySQL database
+async function writeToDatabase(result) {
+  try {
+    // Create a MySQL connection
+    const connection = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "password1",
+      database: "HamConditionsDB",
+    });
 
-    console.log("Conditions:", conditions);
-  })
-  .catch((error) => {
-    // Log an error message if there is an issue
-    console.error("Error:", error.message);
-  });
+    // Get today's date and time
+    const today = new Date();
+    const formattedDate = today.toISOString().slice(0, 19).replace("T", " ");
+
+    // Insert data into the ConditionReports table
+    const [rows, fields] = await connection.execute(
+      `
+      INSERT INTO ConditionReports (date_time, 80m_40m, 30m_20m, 17m_15m, 12m_10m, sunspot_number, solar_flux, geomagnetic_storm, solar_wind, noise_floor)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+      [
+        formattedDate,
+        result.bandConditions["80m-40m"],
+        result.bandConditions["30m-20m"],
+        result.bandConditions["17m-15m"],
+        result.bandConditions["12m-10m"],
+        result.attributeConditions["Sunspot Number"],
+        result.attributeConditions["Solar Flux"],
+        result.attributeConditions["Geomagnetic Storm"],
+        result.attributeConditions["Solar Wind"],
+        result.attributeConditions["Noise Floor"],
+      ]
+    );
+
+    console.log("Data successfully written to the database.");
+
+    // Close the MySQL connection
+    await connection.end();
+  } catch (error) {
+    // Log and throw an error if there is an issue writing to the database
+    console.error("Error writing to the database:", error.message);
+    throw error;
+  }
+}
+
+// Main function to execute the web scraping and database writing logic
+async function main() {
+  try {
+    // Execute the web scraping function to get the data
+    const result = await getWebPage();
+    // Write the extracted data to the MySQL database
+    await writeToDatabase(result);
+  } catch (error) {
+    // Log and throw an error if there is an issue in the main logic
+    console.error("Main error:", error.message);
+  }
+}
+
+// Call the main function to start the program
+main();
