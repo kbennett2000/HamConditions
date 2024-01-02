@@ -14,3 +14,11 @@ npm install cheerio
 ```sh
 npm install mysql2
 ```
+
+```sh
+npm install express
+```
+
+```sh
+npm install mysql
+```
