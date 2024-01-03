@@ -24,7 +24,7 @@ db.connect((err) => {
 
 // Define an Express route to handle requests to the root URL
 app.get("/", (req, res) => {
-  const query = "SELECT * FROM ConditionReports"; // SQL query to select all columns from ConditionReports table
+  const query = "SELECT * FROM HamConditionsDB.ConditionReports ORDER BY date_time DESC"; // SQL query to select all columns from ConditionReports table
 
   // Fetch data from MySQL using the defined query
   db.query(query, (err, results) => {
