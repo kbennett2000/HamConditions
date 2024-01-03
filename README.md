@@ -9,7 +9,9 @@ A small project to store daily ham radio band conditions in a database.
 - makeMySQLTables.js - Create the ConditionReports table in the HamConditionsDB database
 
 ### CRON Job
+```sh
 0 */6 * * * /pathToTheProjectFolder/HamConditions/getConditions.sh
+```
 
 ## Requirements:
 ```sh
