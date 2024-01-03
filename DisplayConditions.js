@@ -55,64 +55,68 @@ app.get("/", (req, res) => {
       // Create an HTML string with a table containing the fetched data
       const html = `
       <html>
-        <head>
-            <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    background-color: #f4f4f4;
-                    margin: 20px;
-                }
-
-                h1 {
-                    color: #333;
-                }
-
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 20px;
-                }
-
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                }
-
-                th {
-                    background-color: #4CAF50;
-                    color: white;
-                }
-
-                tr:nth-child(even) {
-                    background-color: #f2f2f2;
-                }
-            </style>
-            <title>Ham Conditions Data</title>
-        </head>
-          <body>
-            <h1>Ham Conditions Data</h1>
-            <table border="1">
+      <head>
+          <style>
+              body {
+                  font-family: 'Arial', sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 20px;
+              }
+      
+              h1 {
+                  color: #333;
+              }
+      
+              table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 20px;
+              }
+      
+              th, td {
+                  border: 1px solid #ddd;
+                  padding: 8px;
+                  text-align: left;
+              }
+      
+              th {
+                  background-color: #4CAF50;
+                  color: white;
+              }
+      
+              tr:nth-child(even) {
+                  background-color: #f2f2f2;
+              }
+      
+              tr:nth-child(odd) {
+                  background-color: #f9f9f9; /* or any other very light gray color */
+              }
+          </style>
+          <title>Ham Conditions Data</title>
+      </head>
+      <body>
+          <h1>Ham Conditions Data</h1>
+          <table border="1">
               <tr>
-                <th>Date Time</th>
-                <th>80m - 40m Day</th>
-                <th>80m - 40m Night</th>
-                <th>30m - 20m Day</th>
-                <th>30m - 20m Night</th>
-                <th>17m - 15m Day</th>
-                <th>17m - 15m Night</th>
-                <th>12m - 10m Day</th>
-                <th>12m - 10m Night</th>
-                <th>Sunspot Number</th>
-                <th>Solar Flux</th>
-                <th>Geomagnetic Storm</th>
-                <th>Solar Wind</th>
-                <th>Noise Floor</th>
+                  <th>Date Time</th>
+                  <th>80m - 40m Day</th>
+                  <th>80m - 40m Night</th>
+                  <th>30m - 20m Day</th>
+                  <th>30m - 20m Night</th>
+                  <th>17m - 15m Day</th>
+                  <th>17m - 15m Night</th>
+                  <th>12m - 10m Day</th>
+                  <th>12m - 10m Night</th>
+                  <th>Sunspot Number</th>
+                  <th>Solar Flux</th>
+                  <th>Geomagnetic Storm</th>
+                  <th>Solar Wind</th>
+                  <th>Noise Floor</th>
               </tr>
               ${tableRows.join("")}
-            </table>
-          </body>
-        </html>
+          </table>
+      </body>
+      </html>      
       `;
 
       // Send the HTML response to the client
