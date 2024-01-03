@@ -8,6 +8,9 @@ A small project to store daily ham radio band conditions in a database.
 - makeMySQLDB.js - Create the HamConditionsDB MySQL database
 - makeMySQLTables.js - Create the ConditionReports table in the HamConditionsDB database
 
+### CRON Job
+0 */6 * * * /pathToTheProjectFolder/HamConditions/getConditions.sh
+
 ## Requirements:
 ```sh
 npm install axios
